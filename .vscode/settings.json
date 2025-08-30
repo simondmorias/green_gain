@@ -1,0 +1,9 @@
+{
+  "files.exclude": {
+    "**/.mypy_cache": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    ".opencode": true,
+    "docs": true
+  }
+}
