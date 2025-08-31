@@ -25,3 +25,6 @@
 
 ## Documentation
 - All documents related to the repo are in ./docs/components/gain/ - the other folders in ./docs are READ ONLY
+- NEVER create documentation files (*.md, *.txt, README files) in application directories (apps/, services/, packages/)
+- All documentation must go in the designated docs/ folder structure
+- Do not create temporary files like FIXES_APPLIED.md, CHANGES.md, or similar tracking files in code directories

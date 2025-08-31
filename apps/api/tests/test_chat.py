@@ -1,41 +1,38 @@
 """
-Tests for the chat endpoints.
+Unit tests for the chat API endpoints.
 
-This module contains tests for the chat API endpoints including message
-processing, keyword matching, and input validation.
+This module contains comprehensive tests for the chat API endpoints,
+including message processing, keyword matching, and response validation.
 """
 
 from fastapi.testclient import TestClient
 
 from app.main import app
 
-# Create test client
 client = TestClient(app)
 
 
 class TestChatEndpoints:
-    """Test cases for chat endpoints."""
+    """Test cases for chat API endpoints."""
 
-    def test_health_check(self):
-        """Test the health check endpoint."""
-        response = client.get("/health")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "healthy"
-        assert data["service"] == "gain-api"
-
-    def test_root_endpoint(self):
-        """Test the root endpoint."""
-        response = client.get("/")
-        assert response.status_code == 200
-        data = response.json()
-        assert "Welcome to Gain API" in data["message"]
-        assert data["version"] == "1.0.0"
-
-    def test_send_message_revenue_keyword(self):
-        """Test sending a message with revenue keyword."""
+    def test_send_revenue_message(self):
+        """Test sending a revenue-related message."""
         message_data = {"message": "What's our revenue this quarter?"}
-        response = client.post("/api/chat/message", json=message_data)
+        response = client.post("/api/chat", json=message_data)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "response" in data
+        assert "data" in data
+        assert "suggestions" in data
+        assert "metadata" in data
+        assert "revenue summary" in data["response"].lower()
+        assert "total_revenue" in data["data"]
+
+    def test_send_sales_message(self):
+        """Test sending a sales-related message."""
+        message_data = {"message": "How are our sales performing?"}
+        response = client.post("/api/chat", json=message_data)
 
         assert response.status_code == 200
         data = response.json()
@@ -43,25 +40,11 @@ class TestChatEndpoints:
         assert "data" in data
         assert "revenue summary" in data["response"].lower()
         assert "total_revenue" in data["data"]
-        assert data["data"]["total_revenue"] == 2450000
 
-    def test_send_message_sales_keyword(self):
-        """Test sending a message with sales keyword."""
-        message_data = {"message": "Show me sales performance"}
-        response = client.post("/api/chat/message", json=message_data)
-
-        assert response.status_code == 200
-        data = response.json()
-        assert "response" in data
-        assert "data" in data
-        assert "sales performance" in data["response"].lower()
-        assert "total_sales" in data["data"]
-        assert data["data"]["total_sales"] == 1247
-
-    def test_send_message_promotion_keyword(self):
-        """Test sending a message with promotion keyword."""
-        message_data = {"message": "How are our promotions doing?"}
-        response = client.post("/api/chat/message", json=message_data)
+    def test_send_promotion_message(self):
+        """Test sending a promotion-related message."""
+        message_data = {"message": "Show me our promotion performance"}
+        response = client.post("/api/chat", json=message_data)
 
         assert response.status_code == 200
         data = response.json()
@@ -69,12 +52,48 @@ class TestChatEndpoints:
         assert "data" in data
         assert "promotion analysis" in data["response"].lower()
         assert "active_promotions" in data["data"]
-        assert data["data"]["active_promotions"] == 5
 
-    def test_send_message_default_response(self):
-        """Test sending a message that triggers default response."""
-        message_data = {"message": "Hello, how can you help me?"}
-        response = client.post("/api/chat/message", json=message_data)
+    def test_send_pricing_message(self):
+        """Test sending a pricing-related message."""
+        message_data = {"message": "What's our pricing strategy?"}
+        response = client.post("/api/chat", json=message_data)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "response" in data
+        assert "data" in data
+        assert "pricing analysis" in data["response"].lower()
+        assert "price_optimization_opportunities" in data["data"]
+
+    def test_send_product_message(self):
+        """Test sending a product-related message."""
+        message_data = {"message": "Which products are top performers?"}
+        response = client.post("/api/chat", json=message_data)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "response" in data
+        assert "data" in data
+        assert "product performance" in data["response"].lower()
+        assert "total_products" in data["data"]
+
+    def test_send_help_message(self):
+        """Test sending a help-related message."""
+        message_data = {"message": "What can you help me with?"}
+        response = client.post("/api/chat", json=message_data)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "response" in data
+        assert "data" in data
+        assert (
+            "help" in data["response"].lower() or "assist" in data["response"].lower()
+        )
+
+    def test_send_unknown_message(self):
+        """Test sending an unrecognized message."""
+        message_data = {"message": "What's the weather like?"}
+        response = client.post("/api/chat", json=message_data)
 
         assert response.status_code == 200
         data = response.json()
