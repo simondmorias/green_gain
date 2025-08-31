@@ -1,5 +1,8 @@
 # Agent Guidelines for Gain Repository
 
+## Repo Layout
+- Follow the repository file/folder layout described here: ./docs/components/gain/repo_layout.md
+
 ## Build Commands
 - Frontend (Next.js): `cd apps/web && pnpm install && pnpm dev`
 - API (FastAPI): `cd apps/api && python -m venv .venv && source .venv/bin/activate && pip install -e . && uvicorn app.main:app --reload`
@@ -19,3 +22,6 @@
 - Contracts (packages/contracts) define shared schemas using Pydantic
 - Workers (services/worker) process async tasks via Celery/RQ/Arq
 - Use dependency injection pattern, repository pattern for data access
+
+## Documentation
+- All documents related to the repo are in ./docs/components/gain/ - the other folders in ./docs are READ ONLY
