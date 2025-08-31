@@ -3,6 +3,8 @@ export interface Message {
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
+  isError?: boolean;
+  canRetry?: boolean;
 }
 
 export interface ChatState {
@@ -19,11 +21,13 @@ export interface MessageInputProps {
 
 export interface MessageBubbleProps {
   message: Message;
+  onRetry?: () => void;
 }
 
 export interface MessageListProps {
   messages: Message[];
   isLoading: boolean;
+  onRetry?: () => void;
 }
 
 export interface ChatInterfaceProps {

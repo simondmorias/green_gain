@@ -99,7 +99,7 @@ class TestChatEndpoints:
 
     def test_send_too_long_message(self):
         """Test sending a message that exceeds maximum length."""
-        long_message = "x" * 1001  # Exceeds 1000 character limit
+        long_message = "x" * 2001  # Exceeds 2000 character limit
         message_data = {"message": long_message}
         response = client.post("/api/chat/message", json=message_data)
 

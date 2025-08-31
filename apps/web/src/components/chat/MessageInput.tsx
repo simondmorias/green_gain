@@ -1,5 +1,6 @@
 import React, { useState, KeyboardEvent } from 'react';
 import { MessageInputProps } from '@/types/chat';
+import { Button } from '@/components/ui/button';
 
 const MessageInput: React.FC<MessageInputProps> = ({ 
   onSendMessage, 
@@ -16,7 +17,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
   };
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -32,7 +33,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyDown}
             placeholder="Type your message here... (Press Enter to send, Shift+Enter for new line)"
             className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             rows={3}
@@ -43,10 +44,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
             {message.length}/2000
           </div>
         </div>
-        <button
+        <Button
           onClick={handleSend}
           disabled={isDisabled}
-          className="btn-primary flex items-center justify-center min-w-[100px] h-12"
+          className="min-w-[100px] h-12"
         >
           {isLoading ? (
             <>
@@ -56,7 +57,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           ) : (
             'Send'
           )}
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,87 +1,29 @@
-import React, { useState } from 'react';
-import { ChatInterfaceProps, Message, ChatState } from '@/types/chat';
+import React from 'react';
+import { ChatInterfaceProps } from '@/types/chat';
+import { useChat } from '@/hooks/useChat';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ className = '' }) => {
-  const [chatState, setChatState] = useState<ChatState>({
-    messages: [],
-    isLoading: false,
-    error: null,
+  const {
+    messages,
+    isLoading,
+    error,
+    isRetrying,
+    sendMessage,
+    retryLastMessage,
+    clearError,
+  } = useChat({
+    maxRetries: 3,
+    conversationId: 'default',
   });
 
-  const generateMessageId = (): string => {
-    return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const handleSendMessage = async (content: string) => {
+    await sendMessage(content);
   };
 
-  const handleSendMessage = async (content: string) => {
-    // Clear any previous errors
-    setChatState(prev => ({ ...prev, error: null }));
-
-    // Add user message
-    const userMessage: Message = {
-      id: generateMessageId(),
-      content,
-      role: 'user',
-      timestamp: new Date(),
-    };
-
-    setChatState(prev => ({
-      ...prev,
-      messages: [...prev.messages, userMessage],
-      isLoading: true,
-    }));
-
-    try {
-      // Call the API
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: content,
-          conversation_id: 'default', // For now, use a default conversation ID
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      // Add assistant message
-      const assistantMessage: Message = {
-        id: generateMessageId(),
-        content: data.response || 'Sorry, I could not process your request.',
-        role: 'assistant',
-        timestamp: new Date(),
-      };
-
-      setChatState(prev => ({
-        ...prev,
-        messages: [...prev.messages, assistantMessage],
-        isLoading: false,
-      }));
-    } catch (error) {
-      console.error('Error sending message:', error);
-      
-      // Add error message
-      const errorMessage: Message = {
-        id: generateMessageId(),
-        content: 'Sorry, there was an error processing your message. Please try again.',
-        role: 'assistant',
-        timestamp: new Date(),
-      };
-
-      setChatState(prev => ({
-        ...prev,
-        messages: [...prev.messages, errorMessage],
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'An unknown error occurred',
-      }));
-    }
+  const handleRetry = async () => {
+    await retryLastMessage();
   };
 
   return (
@@ -96,25 +38,43 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ className = '' }) => {
         </p>
       </div>
 
-      {/* Error Display */}
-      {chatState.error && (
+      {/* Error Display with Retry Option */}
+      {error && (
         <div className="bg-red-50 border-b border-red-200 p-3">
-          <div className="text-red-600 text-sm">
-            <strong>Error:</strong> {chatState.error}
+          <div className="flex items-center justify-between">
+            <div className="text-red-600 text-sm">
+              <strong>Error:</strong> {error}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleRetry}
+                disabled={isRetrying}
+                className="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-2 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isRetrying ? 'Retrying...' : 'Retry'}
+              </button>
+              <button
+                onClick={clearError}
+                className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded"
+              >
+                Dismiss
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Messages */}
       <MessageList 
-        messages={chatState.messages} 
-        isLoading={chatState.isLoading} 
+        messages={messages} 
+        isLoading={isLoading || isRetrying}
+        onRetry={handleRetry}
       />
 
       {/* Input */}
       <MessageInput
         onSendMessage={handleSendMessage}
-        isLoading={chatState.isLoading}
+        isLoading={isLoading || isRetrying}
       />
     </div>
   );

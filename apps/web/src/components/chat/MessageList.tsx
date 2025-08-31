@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { MessageListProps } from '@/types/chat';
 import MessageBubble from './MessageBubble';
 
-const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, onRetry }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -28,7 +28,11 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
       ) : (
         <>
           {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
+            <MessageBubble 
+              key={message.id} 
+              message={message} 
+              onRetry={message.isError && message.canRetry ? onRetry : undefined}
+            />
           ))}
           {isLoading && (
             <div className="flex justify-start mb-4">
