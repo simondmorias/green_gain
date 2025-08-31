@@ -23,7 +23,7 @@ class ChatMessage(BaseModel):
     """Request model for chat messages."""
 
     message: str = Field(
-        ..., min_length=1, max_length=1000, description="The user's message text"
+        ..., min_length=1, max_length=2000, description="The user's message text"
     )
 
     @field_validator("message")

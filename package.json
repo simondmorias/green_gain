@@ -1,0 +1,18 @@
+{
+  "name": "gain",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter @gain/web dev",
+    "build": "pnpm --filter @gain/web build",
+    "start": "pnpm --filter @gain/web start",
+    "lint": "pnpm --filter @gain/web lint"
+  },
+  "devDependencies": {
+    "pnpm": "^8.0.0"
+  }
+}
