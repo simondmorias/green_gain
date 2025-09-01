@@ -11,6 +11,13 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from ..schemas.entity_recognition import (
+    EntityRecognitionRequest,
+    EntityRecognitionResponse,
+)
+from ..services.artifact_loader import get_artifact_loader
+from ..services.cache_manager import get_cache_manager
+from ..services.entity_recognizer import get_entity_recognition_service
 from ..services.static_responses import StaticResponseService
 
 # Create router instance
@@ -144,3 +151,157 @@ async def get_performance_stats() -> dict[str, Any]:
             "Suggestion system",
         ],
     }
+
+
+@router.post("/chat/recognize-entities", response_model=EntityRecognitionResponse)
+async def recognize_entities(
+    request: EntityRecognitionRequest,
+) -> EntityRecognitionResponse:
+    """
+    Recognize entities in the provided text for live intent highlighting.
+
+    This endpoint processes user input text and identifies entities such as
+    manufacturers, products, metrics, and time periods, returning both
+    tagged text and entity metadata.
+
+    Args:
+        request: Entity recognition request with text and options
+
+    Returns:
+        EntityRecognitionResponse with tagged text and recognized entities
+
+    Raises:
+        HTTPException: If entity recognition fails
+    """
+    try:
+        # Get entity recognition service
+        entity_service = get_entity_recognition_service()
+
+        # Process the text
+        result = entity_service.recognize(
+            text=request.text,
+            options=request.options.model_dump() if request.options else None,
+        )
+
+        # Convert to response format
+        entities = []
+        for entity in result.get("entities", []):
+            entities.append(
+                {
+                    "text": entity["text"],
+                    "type": entity["type"],
+                    "start": entity["start"],
+                    "end": entity["end"],
+                    "confidence": entity.get("confidence", 1.0),
+                    "id": entity.get("id"),
+                    "metadata": entity.get(
+                        "metadata", {"display_name": entity["text"]}
+                    ),
+                }
+            )
+
+        return EntityRecognitionResponse(
+            tagged_text=result["tagged_text"],
+            entities=entities,
+            processing_time_ms=result.get("processing_time_ms", 0),
+            suggestions=result.get("suggestions", []),
+            error=result.get("error"),
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Entity recognition failed: {str(e)}"
+        ) from e
+
+
+@router.post("/chat/cache/invalidate")
+async def invalidate_cache() -> dict[str, Any]:
+    """
+    Invalidate all cached artifacts and results.
+
+    This endpoint clears the Redis cache to force a reload of artifacts
+    and clear cached recognition results.
+
+    Returns:
+        Dictionary with invalidation status
+    """
+    try:
+        artifact_loader = get_artifact_loader()
+        cache_manager = get_cache_manager()
+
+        # Invalidate cache
+        success = artifact_loader.invalidate_cache()
+
+        # Force reload artifacts
+        artifact_loader.reload()
+
+        return {
+            "status": "success" if success else "partial",
+            "message": "Cache invalidated and artifacts reloaded",
+            "cache_enabled": cache_manager.enabled,
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Cache invalidation failed: {str(e)}"
+        ) from e
+
+
+@router.get("/chat/cache/stats")
+async def get_cache_stats() -> dict[str, Any]:
+    """
+    Get cache performance statistics.
+
+    This endpoint returns cache hit rates, latency metrics,
+    and artifact loading statistics.
+
+    Returns:
+        Dictionary with cache statistics
+    """
+    try:
+        cache_manager = get_cache_manager()
+        artifact_loader = get_artifact_loader()
+
+        return {
+            "cache": cache_manager.get_stats(),
+            "artifacts": artifact_loader.get_stats(),
+            "status": "operational",
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get cache stats: {str(e)}"
+        ) from e
+
+
+@router.post("/chat/artifacts/reload")
+async def reload_artifacts() -> dict[str, Any]:
+    """
+    Reload entity artifacts from files.
+
+    This endpoint forces a reload of entity artifacts from the file system,
+    bypassing the cache and updating it with fresh data.
+
+    Returns:
+        Dictionary with reload status
+    """
+    try:
+        artifact_loader = get_artifact_loader()
+        entity_service = get_entity_recognition_service()
+
+        # Reload artifacts
+        success = artifact_loader.reload()
+
+        # Reload in entity service
+        entity_service.reload_artifacts()
+
+        return {
+            "status": "success" if success else "failed",
+            "message": "Artifacts reloaded from files",
+            "stats": artifact_loader.get_stats(),
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Artifact reload failed: {str(e)}"
+        ) from e

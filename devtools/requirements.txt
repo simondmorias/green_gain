@@ -1,0 +1,23 @@
+# Entity Artifact Generation Dependencies
+
+# Databricks SDK for connecting to warehouse
+databricks-sdk>=0.20.0
+databricks-sql-connector>=3.0.0
+
+# Optional Redis support for caching
+redis>=5.0.0
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Standard libraries (included with Python)
+# - json
+# - os
+# - sys
+# - time
+# - argparse
+# - logging
+# - pathlib
+# - typing
+# - collections
+# - datetime

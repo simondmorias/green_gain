@@ -1,0 +1,176 @@
+/* Entity Pill Styles */
+
+.entityPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: inherit;
+  line-height: 1.4;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  margin: 0 2px;
+  position: relative;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+.entityPillInteractive {
+  cursor: pointer;
+}
+
+.entityPillInteractive:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.entityPillInteractive:focus {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+.entityPillInteractive:active {
+  transform: scale(0.98);
+}
+
+/* Entity type-specific styles */
+.entityPill--manufacturer,
+.entityPill--brand {
+  background: linear-gradient(135deg, #1FC1F0, #1821ED);
+  color: white;
+}
+
+.entityPill--product {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: white;
+}
+
+.entityPill--category {
+  background: linear-gradient(135deg, #6B7280, #4B5563);
+  color: white;
+}
+
+.entityPill--metric {
+  background: linear-gradient(135deg, #A034F9, #7C3AED);
+  color: white;
+}
+
+.entityPill--time-period,
+.entityPill--time_period {
+  background: linear-gradient(135deg, #FF8E00, #F59E0B);
+  color: white;
+}
+
+/* Low confidence styling */
+.entityPillUncertain {
+  background: transparent !important;
+  border-style: dashed !important;
+  color: currentColor !important;
+}
+
+.entityPillUncertain.entityPill--manufacturer,
+.entityPillUncertain.entityPill--brand {
+  border-color: #1FC1F0;
+  color: #1FC1F0;
+}
+
+.entityPillUncertain.entityPill--product {
+  border-color: #10B981;
+  color: #10B981;
+}
+
+.entityPillUncertain.entityPill--category {
+  border-color: #6B7280;
+  color: #6B7280;
+}
+
+.entityPillUncertain.entityPill--metric {
+  border-color: #A034F9;
+  color: #A034F9;
+}
+
+.entityPillUncertain.entityPill--time-period,
+.entityPillUncertain.entityPill--time_period {
+  border-color: #FF8E00;
+  color: #FF8E00;
+}
+
+/* Pill text */
+.entityPillText {
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Confidence indicator */
+.entityPillConfidence {
+  margin-left: 4px;
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+/* Remove button */
+.entityPillRemove {
+  margin-left: 4px;
+  padding: 0 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: currentColor;
+  font-size: 1.2em;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.entityPillRemove:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Accessibility - High contrast mode support */
+@media (prefers-contrast: high) {
+  .entityPill {
+    border-width: 2px;
+    border-style: solid;
+  }
+
+  .entityPillUncertain {
+    border-style: dashed;
+  }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .entityPill {
+    transition: none;
+  }
+
+  .entityPillInteractive:hover {
+    transform: none;
+  }
+
+  .entityPillInteractive:active {
+    transform: none;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .entityPill {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .entityPillInteractive:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  }
+
+  .entityPillRemove {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .entityPillRemove:hover {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
