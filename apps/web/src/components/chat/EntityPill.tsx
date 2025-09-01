@@ -71,19 +71,7 @@ export const EntityPill: React.FC<EntityPillProps> = ({
           {Math.round(entity.confidence * 100)}%
         </span>
       )}
-      {isInteractive && onRemove && (
-        <button
-          className={styles.entityPillRemove}
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove(entity);
-          }}
-          aria-label={`Remove ${entity.text}`}
-          tabIndex={-1}
-        >
-          ×
-        </button>
-      )}
+
     </span>
   );
 };

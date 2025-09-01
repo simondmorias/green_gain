@@ -213,14 +213,15 @@ class EntityMatcher:
         return {"entities": matches, "tagged_text": tagged_text}
 
     def _resolve_overlaps(self, matches: list[dict]) -> list[dict]:
-        """Resolve overlapping matches using entity type priority."""
+        """Resolve overlapping matches by preferring longest matches, then by entity type priority."""
         if not matches:
             return matches
 
-        # Sort by start position, then by end position (descending for longer matches)
-        matches.sort(key=lambda x: (x["start"], -x["end"]))
+        # Sort by length (descending) first, then by start position
+        # This ensures we process longer matches first
+        matches.sort(key=lambda x: (-(x["end"] - x["start"]), x["start"]))
 
-        # Priority order (higher priority first)
+        # Priority order (higher priority first) - used as tiebreaker for same-length matches
         type_priority = {
             "manufacturer": 4,
             "brand": 3,
@@ -243,36 +244,10 @@ class EntityMatcher:
                     break
 
             if not overlap:
-                # No overlap, add this match
+                # No overlap, add this match (longer matches are processed first)
                 resolved.append(match)
                 for pos in range(match["start"], match["end"]):
                     used_positions.add(pos)
-            else:
-                # Overlap detected, check priority
-                match_priority = type_priority.get(match["type"], 0)
-                
-                # Find conflicting matches
-                conflicting = []
-                for existing in resolved:
-                    if not (match["end"] <= existing["start"] or match["start"] >= existing["end"]):
-                        conflicting.append(existing)
-
-                if conflicting:
-                    # Get highest priority among conflicting matches
-                    max_existing_priority = max(
-                        type_priority.get(c["type"], 0) for c in conflicting
-                    )
-
-                    if match_priority > max_existing_priority:
-                        # Remove conflicting matches and add this one
-                        for conf in conflicting:
-                            resolved.remove(conf)
-                            for pos in range(conf["start"], conf["end"]):
-                                used_positions.discard(pos)
-
-                        resolved.append(match)
-                        for pos in range(match["start"], match["end"]):
-                            used_positions.add(pos)
 
         return resolved
 

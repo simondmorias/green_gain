@@ -271,9 +271,12 @@ class EntityArtifactGenerator:
                 "Q1", "Q2", "Q3", "Q4", "quarter", "month", "year",
                 "YTD", "MTD", "QTD", "last", "previous", "current",
                 "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
+                "July", "August", "September", "October", "November", "December",
+                "2024 Q1", "2024 Q2", "2024 Q3", "2024 Q4",
+                "2025 Q1", "2025 Q2", "2025 Q3", "2025 Q4",
+                "2023 Q1", "2023 Q2", "2023 Q3", "2023 Q4"
             ],
-            "special_tokens": ["vs", "versus", "compare", "analyze", "show", "what", "how"]
+            "special_tokens": ["vs", "versus", "compare", "analyze", "show"]
         }
 
         for entity_type, entities in entities_by_type.items():

@@ -455,7 +455,8 @@
       "Walkers Chocolates",
       "Walnut Whip",
       "Wonka",
-      "Yorkie"
+      "Yorkie",
+      "Dairy Milk"
     ],
     "categories": [
       "CONFECTIONERY"
@@ -545,15 +546,25 @@
     "September",
     "October",
     "November",
-    "December"
+    "December",
+    "2024 Q1",
+    "2024 Q2",
+    "2024 Q3",
+    "2024 Q4",
+    "2025 Q1",
+    "2025 Q2",
+    "2025 Q3",
+    "2025 Q4",
+    "2023 Q1",
+    "2023 Q2",
+    "2023 Q3",
+    "2023 Q4"
   ],
   "special_tokens": [
     "vs",
     "versus",
     "compare",
     "analyze",
-    "show",
-    "what",
-    "how"
+    "show"
   ]
 }

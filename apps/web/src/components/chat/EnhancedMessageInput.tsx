@@ -2,12 +2,9 @@ import React, { useState, KeyboardEvent, useEffect, useRef } from 'react';
 import { MessageInputProps } from '@/types/chat';
 import { Button } from '@/components/ui/button';
 import { useEntityRecognition, useEntityInteraction } from '@/hooks/useEntityRecognition';
-import { HighlightedText } from './HighlightedText';
-import { RecognizedEntity } from '@/types/entities';
 
 interface EnhancedMessageInputProps extends MessageInputProps {
   enableEntityRecognition?: boolean;
-  showEntityPills?: boolean;
 }
 
 const EnhancedMessageInput: React.FC<EnhancedMessageInputProps> = ({ 
@@ -15,12 +12,10 @@ const EnhancedMessageInput: React.FC<EnhancedMessageInputProps> = ({
   isLoading, 
   disabled = false,
   enableEntityRecognition = true,
-  showEntityPills = true,
 }) => {
   const [message, setMessage] = useState('');
   const [showHighlights, setShowHighlights] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const highlightLayerRef = useRef<HTMLDivElement>(null);
 
   // Entity recognition hook
   const {
@@ -38,8 +33,6 @@ const EnhancedMessageInput: React.FC<EnhancedMessageInputProps> = ({
   // Entity interaction hook
   const {
     selectedEntity,
-    handleEntityClick,
-    handleEntityRemove,
     resetRemovedEntities,
   } = useEntityInteraction();
 
@@ -72,20 +65,9 @@ const EnhancedMessageInput: React.FC<EnhancedMessageInputProps> = ({
     }
   };
 
-  const handleEntityClickInternal = (entity: RecognizedEntity) => {
-    handleEntityClick(entity);
-    // Optionally show entity details in a tooltip or modal
-    // console.log('Entity clicked:', entity);
-  };
+
 
   const isDisabled = isLoading || disabled || !message.trim();
-
-  // Sync scroll position between textarea and highlight layer
-  const handleScroll = () => {
-    if (textareaRef.current && highlightLayerRef.current) {
-      highlightLayerRef.current.scrollTop = textareaRef.current.scrollTop;
-    }
-  };
 
   return (
     <div className="border-t border-gray-200 bg-white p-4">
@@ -121,50 +103,37 @@ const EnhancedMessageInput: React.FC<EnhancedMessageInputProps> = ({
           </div>
         )}
 
-        {/* Message input with overlay for entity highlights */}
+
+
+        {/* Message input */}
         <div className="flex items-end space-x-3">
-          <div className="flex-1 relative">
-            {/* Highlight overlay (behind textarea) */}
-            {showHighlights && showEntityPills && entities.length > 0 && (
-              <div
-                ref={highlightLayerRef}
-                className="absolute inset-0 pointer-events-none overflow-hidden"
-                style={{
-                  padding: '12px 16px',
-                  paddingRight: '32px',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  lineHeight: '1.5',
-                  fontSize: '14px',
-                }}
-              >
-                <HighlightedText
-                  text={message}
-                  entities={entities}
-                  onEntityClick={handleEntityClickInternal}
-                  onEntityRemove={handleEntityRemove}
-                  showConfidence={false}
-                  isInteractive={false}
-                />
+          <div className="flex-1">
+            {/* Recognized entities display */}
+            {showHighlights && entities.length > 0 && (
+              <div className="mb-2 px-2 py-1 text-xs text-gray-600">
+                <span className="inline-flex items-center gap-2">
+                  <span>Recognized:</span>
+                  {entities.map((entity, index) => (
+                    <span
+                      key={`${entity.type}-${entity.start}-${index}`}
+                      className="font-semibold text-blue-600"
+                      title={`${entity.type}: ${entity.text}`}
+                    >
+                      {entity.text}
+                    </span>
+                  ))}
+                </span>
               </div>
             )}
-
+            
             {/* Textarea */}
             <textarea
               ref={textareaRef}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              onScroll={handleScroll}
               placeholder="Type your message here... (Press Enter to send, Shift+Enter for new line)"
-              className={`w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                showHighlights && entities.length > 0 ? 'bg-transparent' : 'bg-white'
-              }`}
-              style={{
-                position: 'relative',
-                zIndex: 1,
-                backgroundColor: showHighlights && entities.length > 0 ? 'transparent' : 'white',
-              }}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               rows={3}
               disabled={disabled}
               maxLength={2000}
