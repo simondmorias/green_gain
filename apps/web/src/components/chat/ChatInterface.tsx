@@ -2,7 +2,7 @@ import React from 'react';
 import { ChatInterfaceProps } from '@/types/chat';
 import { useChat } from '@/hooks/useChat';
 import MessageList from './MessageList';
-import MessageInput from './MessageInput';
+import EnhancedMessageInput from './EnhancedMessageInput';
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ className = '' }) => {
   const {
@@ -72,7 +72,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ className = '' }) => {
       />
 
       {/* Input */}
-      <MessageInput
+      <EnhancedMessageInput
         onSendMessage={handleSendMessage}
         isLoading={isLoading || isRetrying}
       />

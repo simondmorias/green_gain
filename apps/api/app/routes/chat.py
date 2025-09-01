@@ -193,7 +193,7 @@ async def recognize_entities(
                     "start": entity["start"],
                     "end": entity["end"],
                     "confidence": entity.get("confidence", 1.0),
-                    "id": entity.get("id"),
+                     "id": str(entity.get("id")) if entity.get("id") is not None else None,
                     "metadata": entity.get(
                         "metadata", {"display_name": entity["text"]}
                     ),
